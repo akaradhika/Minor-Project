@@ -15,8 +15,8 @@ IMAGE_API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-
 
 ANALYSIS_API_URL = "https://api-inference.huggingface.co/models/MIT/ast-finetuned-audioset-10-10-0.4593"
 GENERATION_API_URL = "https://api-inference.huggingface.co/models/facebook/musicgen-small"
-ANALYSIS_API_TOKEN = "your api token"
-GENERATION_API_TOKEN = "your api token"
+ANALYSIS_API_TOKEN = "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"
+GENERATION_API_TOKEN = "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"
 analysis_headers = {"Authorization": f"Bearer {ANALYSIS_API_TOKEN}"}
 generation_headers = {"Authorization": f"Bearer {GENERATION_API_TOKEN}"}
 IMAGE_HEADERS = {"Authorization": f"Bearer {GENERATION_API_TOKEN}"}
