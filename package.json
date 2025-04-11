@@ -1,0 +1,22 @@
+{
+  "name": "manit",
+  "version": "1.0.0",
+  "description": "AI-Driven Art and Music Inspiration Platform\r Welcome to the AI-Driven Art and Music Inspiration Platform! This tool is designed to help artists, musicians, and writers find fresh inspiration and break through creative blocks. Whether you’re struggling to come up with new ideas or want to experiment with different styles, this platform offers personalized suggestions based on your unique creative journey.",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"npm run start:backend\" \"npm run wait-and-start:frontend\"",
+    "start:backend": "npx nodemon backend/app.js",
+    "wait-and-start:frontend": "wait-on http://localhost:5001 && npm start --prefix frontend"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "wait-on": "^8.0.1"
+  },
+  "dependencies": {
+    "lucide-react": "^0.456.0",
+    "three": "^0.170.0"
+  }
+}

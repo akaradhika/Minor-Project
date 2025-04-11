@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px;
+        }
+        #loading {
+            display: none;
+            margin-top: 20px;
+        }
+        img {
+            margin-top: 20px;
+            max-width: 100%;
+            border-radius: 8px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Generate an AI Image</h1>
+    <form id="imageForm">
+        <input type="file" id="imageUpload" accept="image/*" required>
+        <button type="submit">Upload and Analyze Image</button>
+    </form>
+    
+    <div id="loading">Processing image, please wait...</div>
+    <div id="result">
+        <p id="themeResult"></p>
+        <img id="generatedImage" alt="Generated AI Image">
+    </div>
+
+    <script>
+        document.getElementById('imageForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const imageFile = document.getElementById('imageUpload').files[0];
+            if (!imageFile) {
+                alert("Please upload an image.");
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('generatedImage').style.display = 'none';
+            document.getElementById('themeResult').innerText = '';
+
+            const formData = new FormData();
+            formData.append('image', imageFile);
+
+            try {
+                const response = await fetch('/analyze-image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('themeResult').innerText = `Detected Theme: ${data.theme} (Confidence: ${data.confidence}%)\nColor Palette: ${data.palette.join(", ")}`;
+
+                    const genResponse = await fetch('/generate-image', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prompt: data.theme })
+                    });
+
+                    if (genResponse.ok) {
+                        const blob = await genResponse.blob();
+                        const imgUrl = URL.createObjectURL(blob);
+                        const img = document.getElementById('generatedImage');
+                        img.src = imgUrl;
+                        img.style.display = 'block';
+                    }
+                } else {
+                    alert('Failed to analyze image. Please try again.');
+                }
+            } catch (error) {
+                alert('An error occurred while processing the image.');
+                console.error(error);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicGen Bot - Dark Theme</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #121212; /* Dark background */
+            color: #f5f5f5; /* Light text color */
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: #1e1e1e; /* Slightly lighter dark background */
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+
+        h1 {
+            color: #e0e0e0; /* Light gray color for heading */
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #333; /* Darker input background */
+            color: #f5f5f5;
+            border: 1px solid #555;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50; /* Green button */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .loading, .error {
+            display: none;
+            font-size: 16px;
+        }
+
+        .loading {
+            color: #f5f5f5;
+        }
+
+        .error {
+            color: #ff6666; /* Red for error */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Generate Music with AI - Dark Theme</h1>
+        <p>Enter a prompt to create unique audio based on your description!</p>
+
+        <form id="prompt-form">
+            <input type="text" id="prompt-input" name="prompt" placeholder="Describe the music you want" required>
+            <button type="submit">Generate Audio</button>
+        </form>
+
+        
+        <div id="loading" class="loading">Generating audio... Please wait.</div>
+
+        
+        <div id="audio-result" class="result" style="display: none;">
+            <h3>Your Generated Audio:</h3>
+            <audio id="audio-player" controls></audio>
+        </div>
+
+        
+        <div id="error-message" class="error">Failed to generate audio. Please try again.</div>
+    </div>
+
+    <script>
+        document.getElementById("prompt-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const promptInput = document.getElementById("prompt-input").value;
+            const formData = new FormData();
+            formData.append("prompt", promptInput);
+
+            
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("audio-result").style.display = "none";
+            document.getElementById("error-message").style.display = "none";
+
+            fetch("/", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => {
+                
+                document.getElementById("loading").style.display = "none";
+
+                if (response.ok) {
+                    return response.blob();
+                } else {
+                    throw new Error("Failed to generate audio");
+                }
+            })
+            .then(blob => {
+                
+                const audioUrl = URL.createObjectURL(blob);
+                document.getElementById("audio-player").src = audioUrl;
+                document.getElementById("audio-result").style.display = "block";
+            })
+            .catch(error => {
+            
+                console.error("Error:", error);
+                document.getElementById("error-message").style.display = "block";
+            });
+        });
+    </script>
+
+</body>
+</html>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automated Audio Generation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #121212;
+            color: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        input[type="file"], button {
+            padding: 10px;
+            margin: 20px 0;
+        }
+        #loading {
+            display: none;
+            font-size: 18px;
+            color: #f5f5f5;
+        }
+        #audio-result {
+            display: none;
+            margin-top: 20px;
+        }
+        .error {
+            color: #ff6666;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Audio for Automatic Theme Analysis & Music Generation</h1>
+        <form id="audioForm" enctype="multipart/form-data">
+            <input type="file" id="fileInput" name="audioFile" accept="audio/*" required>
+            <button type="submit">Generate Music</button>
+        </form>
+        <div id="loading">Processing audio, please wait...</div>
+        <div id="audio-result">
+            <h3>Your Generated Audio:</h3>
+            <audio id="audio-player" controls></audio>
+        </div>
+        <div id="error-message" class="error">An error occurred. Please try again.</div>
+    </div>
+
+    <script>
+        document.getElementById("audioForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById("fileInput");
+
+            if (!fileInput.files.length) {
+                alert("Please select an audio file.");
+                return;
+            }
+
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("audio-result").style.display = "none";
+            document.getElementById("error-message").style.display = "none";
+
+            const formData = new FormData();
+            formData.append("audioFile", fileInput.files[0]);
+
+            try {
+                const response = await fetch("/", {
+                    method: "POST",
+                    body: formData
+                });
+
+                document.getElementById("loading").style.display = "none";
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const audioUrl = URL.createObjectURL(blob);
+                    document.getElementById("audio-player").src = audioUrl;
+                    document.getElementById("audio-result").style.display = "block";
+                } else {
+                    document.getElementById("error-message").style.display = "block";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById("loading").style.display = "none";
+                document.getElementById("error-message").style.display = "block";
+            }
+        });
+    </script>
+</body>
+</html>
